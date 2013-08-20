@@ -57,7 +57,7 @@ the following information can be gathered from the result:
 ##License
 
 "PostcodeApi" is owned by freshheads, see http://postcodeapi.nu and http://freshheads.com for more information.
-I am in no way affiliated with PostcodeAPI or the freasheads organization.
+I am in no way affiliated with PostcodeAPI or the freshheads organization.
 
 [Rijksdriehoek]: http://nl.wikipedia.org/wiki/Rijksdriehoekscoördinaten
 [Trigonometrical]: http://en.wikipedia.org/wiki/Triangulation_station
