@@ -22,7 +22,7 @@ class pyPostcodeException(Exception):
         self.message = message
 
 
-class pyPostcodeApi(object):
+class Api(object):
 
     def __init__(self, api_key):
         if api_key is None or api_key is '':
@@ -83,12 +83,12 @@ class pyPostcodeApi(object):
             data = None
 
         if data is not None:
-            return pyPostcodeResource(data)
+            return Resource(data)
         else:
             return False
 
 
-class pyPostcodeResource(object):
+class Resource(object):
 
     def __init__(self, data):
         self._street = None

@@ -32,9 +32,9 @@ Get the address by using the zipcode and the house number
 ```python
 #!/usr/bin/python
 
-from pyPostcode import pyPostcodeApi
+from pyPostcode import Api
 
-postcodeapi = pyPostcodeApi('{YOUR_API_KEY}') # Set your own API-key
+postcodeapi = Api('{YOUR_API_KEY}') # Set your own API-key
 result = postcodeapi.getaddress('1011AC', 154) # use address search
 print result.street, result.house_number, result.town
 ```
