@@ -7,9 +7,9 @@ pyPostcode by Stefan Jansen
 pyPostcode is an api wrapper for http://postcodeapi.nu
 '''
 
-import sys
-import json
+
 import httplib
+import json
 
 
 __version__ = '0.1'
