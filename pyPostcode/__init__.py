@@ -26,7 +26,8 @@ class Api(object):
 
     def __init__(self, api_key):
         if api_key is None or api_key is '':
-            raise pyPostcodeException(0, "Please request an api key on http://postcodeapi.nu")
+            raise pyPostcodeException(
+                0, "Please request an api key on http://postcodeapi.nu")
 
         self.api_key = api_key
         self.url = 'api.postcodeapi.nu'
@@ -46,10 +47,11 @@ class Api(object):
     def request(self, path=None):
         '''Helper function for HTTP GET requests to the API'''
 
-        headers = {"Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-                   "Accept": "application/json",
-                   "Accept-Language": "en",
-                   "Api-Key": self.api_key}
+        headers = {
+            "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "Accept": "application/json",
+            "Accept-Language": "en",
+            "Api-Key": self.api_key}
 
         conn = httplib.HTTPConnection(self.url)
         '''Only GET is supported by the API at this time'''
@@ -70,7 +72,7 @@ class Api(object):
         return data
 
     def getaddress(self, postcode, house_number=None):
-        if house_number == None:
+        if house_number is None:
             house_number = ''
 
         path = '/{0}/{1}'.format(
@@ -105,7 +107,6 @@ class Resource(object):
         if data is not None:
             self.setdata(data)
 
-
     def setdata(self, data):
         self._data = data
         data_keys = self._data.keys()
@@ -116,6 +117,7 @@ class Resource(object):
     @property
     def street(self):
         return self._street
+
     @street.setter
     def street(self, value):
         self._street = value
@@ -127,6 +129,7 @@ class Resource(object):
         is used without house number
         '''
         return self._house_number
+
     @house_number.setter
     def house_number(self, value):
         self._house_number = value
@@ -134,6 +137,7 @@ class Resource(object):
     @property
     def postcode(self):
         return self._postcode
+
     @postcode.setter
     def postcode(self, value):
         self._postcode = value
@@ -141,6 +145,7 @@ class Resource(object):
     @property
     def town(self):
         return self._town
+
     @town.setter
     def town(self, value):
         self._town = value
@@ -148,6 +153,7 @@ class Resource(object):
     @property
     def municipality(self):
         return self._municipality
+
     @municipality.setter
     def municipality(self, value):
         self._municipality = value
@@ -155,6 +161,7 @@ class Resource(object):
     @property
     def province(self):
         return self._province
+
     @province.setter
     def province(self, value):
         self._province = value
@@ -162,6 +169,7 @@ class Resource(object):
     @property
     def latitude(self):
         return self._latitude
+
     @latitude.setter
     def latitude(self, value):
         self._latitude = value
@@ -169,6 +177,7 @@ class Resource(object):
     @property
     def longitude(self):
         return self._longitude
+
     @longitude.setter
     def longitude(self, value):
         self._longitude = value
@@ -176,6 +185,7 @@ class Resource(object):
     @property
     def x(self):
         return self._x
+
     @x.setter
     def x(self, value):
         self._x = value
@@ -183,7 +193,7 @@ class Resource(object):
     @property
     def y(self):
         return self._y
+
     @y.setter
     def y(self, value):
         self._y = value
-
