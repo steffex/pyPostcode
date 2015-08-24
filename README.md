@@ -11,6 +11,9 @@ For more information about this API, please visit http://postcodeapi.nu
 
 ##Installation
 
+###PyPI
+```pip install pyPostcode```
+
 ###Manually
 
 pyPostcode consists of a single file (pyPostcode.py) that you can put in your python search path or in site-packages (or dist-packages depending on the platform)
