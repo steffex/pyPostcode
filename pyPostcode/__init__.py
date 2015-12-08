@@ -10,6 +10,7 @@ pyPostcode is an api wrapper for http://postcodeapi.nu
 
 import httplib
 import json
+import logging
 
 
 __version__ = '0.1'
@@ -24,13 +25,17 @@ class pyPostcodeException(Exception):
 
 class Api(object):
 
-    def __init__(self, api_key):
+    def __init__(self, api_key, api_version=(1, 0, 0)):
         if api_key is None or api_key is '':
             raise pyPostcodeException(
                 0, "Please request an api key on http://postcodeapi.nu")
 
         self.api_key = api_key
-        self.url = 'api.postcodeapi.nu'
+        self.api_version = api_version
+        if api_version >= (2, 0, 0):
+            self.url = 'postcode-api.apiwise.nl'
+        else:
+            self.url = 'api.postcodeapi.nu'
 
     def handleresponseerror(self, status):
         if status == 401:
@@ -48,12 +53,18 @@ class Api(object):
         '''Helper function for HTTP GET requests to the API'''
 
         headers = {
-            "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
             "Accept": "application/json",
             "Accept-Language": "en",
-            "Api-Key": self.api_key}
+            # this is the v1 api
+            "Api-Key": self.api_key,
+            # this is the v2 api
+            "X-Api-Key": self.api_key,
+        }
 
-        conn = httplib.HTTPConnection(self.url)
+        if self.api_version >= (2, 0, 0):
+            conn = httplib.HTTPSConnection(self.url)
+        else:
+            conn = httplib.HTTPConnection(self.url)
         '''Only GET is supported by the API at this time'''
         conn.request('GET', path, None, headers)
 
@@ -67,7 +78,15 @@ class Api(object):
         conn.close()
 
         jsondata = json.loads(resultdata)
-        data = jsondata['resource']
+
+        if self.api_version >= (2, 0, 0):
+            data = jsondata.get('_embedded', {}).get('addresses', [])
+            if data:
+                data = data[0]
+            else:
+                data = None
+        else:
+            data = jsondata['resource']
 
         return data
 
@@ -75,13 +94,24 @@ class Api(object):
         if house_number is None:
             house_number = ''
 
-        path = '/{0}/{1}'.format(
+        if self.api_version >= (2, 0, 0):
+            path = '/v2/addresses/?postcode={0}&number={1}'
+        else:
+            path = '/{0}/{1}'
+        path = path.format(
             str(postcode),
             str(house_number))
 
         try:
             data = self.request(path)
-        except Exception:
+        except pyPostcodeException as e:
+            logging.error(
+                'Error looking up %s%s%s on %s: %d %s',
+                postcode, house_number and ' ' or '', house_number, self.url,
+                e.id, e.message)
+            data = None
+        except Exception as e:
+            logging.exception(e)
             data = None
 
         if data is not None:
@@ -93,34 +123,11 @@ class Api(object):
 class Resource(object):
 
     def __init__(self, data):
-        self._street = None
-        self._house_number = None
-        self._postcode = None
-        self._town = None
-        self._municipality = None
-        self._province = None
-        self._latitude = None
-        self._longitude = None
-        self._x = None
-        self._y = None
-
-        if data is not None:
-            self.setdata(data)
-
-    def setdata(self, data):
         self._data = data
-        data_keys = self._data.keys()
-        for key in data_keys:
-            if hasattr(self, key):
-                setattr(self, key, self._data[key])
 
     @property
     def street(self):
-        return self._street
-
-    @street.setter
-    def street(self, value):
-        self._street = value
+        return self._data['street']
 
     @property
     def house_number(self):
@@ -128,72 +135,54 @@ class Resource(object):
         House number can be empty when postcode search
         is used without house number
         '''
-        return self._house_number
-
-    @house_number.setter
-    def house_number(self, value):
-        self._house_number = value
+        return self._data.get('number', self._data.get('house_number'))
 
     @property
     def postcode(self):
-        return self._postcode
-
-    @postcode.setter
-    def postcode(self, value):
-        self._postcode = value
+        return self._data.get('postcode')
 
     @property
     def town(self):
-        return self._town
-
-    @town.setter
-    def town(self, value):
-        self._town = value
+        return self._data.get('city', {}).get('label', self._data.get('town'))
 
     @property
     def municipality(self):
-        return self._municipality
-
-    @municipality.setter
-    def municipality(self, value):
-        self._municipality = value
+        result = self._data.get('municipality', {})
+        if isinstance(result, dict):
+            result = result.get('label')
+        return result
 
     @property
     def province(self):
-        return self._province
+        result = self._data.get('province', {})
+        if isinstance(result, dict):
+            result = result.get('label')
+        return result
 
-    @province.setter
-    def province(self, value):
-        self._province = value
+    def _get_geo_coordinates(self, geo_type):
+        return self._data.get('geo', {}).get('center', {}).get(geo_type)\
+            .get('coordinates', [None, None])
 
     @property
     def latitude(self):
-        return self._latitude
-
-    @latitude.setter
-    def latitude(self, value):
-        self._latitude = value
+        if self._data.get('latitude'):
+            return self._data.get('latitude')
+        return self._get_geo_coordinates('wgs84')[0]
 
     @property
     def longitude(self):
-        return self._longitude
-
-    @longitude.setter
-    def longitude(self, value):
-        self._longitude = value
+        if self._data.get('longitude'):
+            return self._data.get('longitude')
+        return self._get_geo_coordinates('wgs84')[1]
 
     @property
     def x(self):
-        return self._x
-
-    @x.setter
-    def x(self, value):
-        self._x = value
+        if self._data.get('x'):
+            return self._data.get('x')
+        return self._get_geo_coordinates('rd')[0]
 
     @property
     def y(self):
-        return self._y
-
-    @y.setter
-    def y(self, value):
-        self._y = value
+        if self._data.get('y'):
+            return self._data.get('y')
+        return self._get_geo_coordinates('rd')[1]

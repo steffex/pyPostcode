@@ -8,6 +8,8 @@ This API allows you to search for Dutch addresses using zipcodes.
 
 For more information about this API, please visit http://postcodeapi.nu
 
+This library supports both the v1 and the v2 api, defaulting to v1 for now.
+
 
 ##Installation
 
@@ -38,6 +40,8 @@ Get the address by using the zipcode and the house number
 from pyPostcode import Api
 
 postcodeapi = Api('{YOUR_API_KEY}') # Set your own API-key
+# if you want to use the v2 api, say
+postcodeapi = Api('{YOUR_API_KEY}', (2, 0, 0))
 result = postcodeapi.getaddress('1011AC', 154) # use address search
 print result.street, result.house_number, result.town
 ```
