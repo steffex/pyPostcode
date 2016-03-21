@@ -13,7 +13,7 @@ import json
 import logging
 
 
-__version__ = '0.1'
+__version__ = '0.3'
 
 
 class pyPostcodeException(Exception):
@@ -25,7 +25,7 @@ class pyPostcodeException(Exception):
 
 class Api(object):
 
-    def __init__(self, api_key, api_version=(1, 0, 0)):
+    def __init__(self, api_key, api_version=(2, 0, 0)):
         if api_key is None or api_key is '':
             raise pyPostcodeException(
                 0, "Please request an api key on http://postcodeapi.nu")

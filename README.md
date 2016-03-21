@@ -8,7 +8,7 @@ This API allows you to search for Dutch addresses using zipcodes.
 
 For more information about this API, please visit http://postcodeapi.nu
 
-This library supports both the v1 and the v2 api, defaulting to v1 for now.
+This library supports only the v2 api, defaulting to v2.
 
 
 ##Installation
@@ -25,7 +25,7 @@ pyPostcode works with Python 2.7.x (you're welcome to test other versions)
 ###API-key
 
 The API can only be used when you have your own API-key.
-You can request this key by visiting: http://www.postcodeapi.nu/#request
+You can request this key by visiting: http://www.postcodeapi.nu/#pakketten
 
 
 ##Example
@@ -40,8 +40,6 @@ Get the address by using the zipcode and the house number
 from pyPostcode import Api
 
 postcodeapi = Api('{YOUR_API_KEY}') # Set your own API-key
-# if you want to use the v2 api, say
-postcodeapi = Api('{YOUR_API_KEY}', (2, 0, 0))
 result = postcodeapi.getaddress('1011AC', 154) # use address search
 print result.street, result.house_number, result.town
 ```
@@ -63,8 +61,8 @@ the following information can be gathered from the result:
 
 ##License
 
-"PostcodeApi" is owned by freshheads, see http://postcodeapi.nu and http://freshheads.com for more information.
-I am in no way affiliated with PostcodeAPI or the freshheads organization.
+"PostcodeApi" is owned by Apiwise, see http://postcodeapi.nu for more information.
+I am in no way affiliated with PostcodeAPI or the Apiwise organization.
 
 [Rijksdriehoek]: http://nl.wikipedia.org/wiki/Rijksdriehoekscoördinaten
 [Trigonometrical]: http://en.wikipedia.org/wiki/Triangulation_station
