@@ -8,7 +8,7 @@ pyPostcode is an api wrapper for http://postcodeapi.nu
 '''
 
 
-import httplib
+import urllib2
 import json
 import logging
 
@@ -33,9 +33,9 @@ class Api(object):
         self.api_key = api_key
         self.api_version = api_version
         if api_version >= (2, 0, 0):
-            self.url = 'postcode-api.apiwise.nl'
+            self.url = 'https://postcode-api.apiwise.nl'
         else:
-            self.url = 'api.postcodeapi.nu'
+            self.url = 'http://api.postcodeapi.nu'
 
     def handleresponseerror(self, status):
         if status == 401:
@@ -61,21 +61,14 @@ class Api(object):
             "X-Api-Key": self.api_key,
         }
 
-        if self.api_version >= (2, 0, 0):
-            conn = httplib.HTTPSConnection(self.url)
-        else:
-            conn = httplib.HTTPConnection(self.url)
-        '''Only GET is supported by the API at this time'''
-        conn.request('GET', path, None, headers)
+        result = urllib2.urlopen(urllib2.Request(
+            self.url + path, headers=headers,
+        ))
 
-        result = conn.getresponse()
-
-        if result.status is not 200:
-            conn.close()
-            self.handleresponseerror(result.status)
+        if result.getcode() is not 200:
+            self.handleresponseerror(result.getcode())
 
         resultdata = result.read()
-        conn.close()
 
         jsondata = json.loads(resultdata)
 
