@@ -13,7 +13,7 @@ import json
 import logging
 
 
-__version__ = '0.3'
+__version__ = '0.4'
 
 
 class pyPostcodeException(Exception):
@@ -160,13 +160,13 @@ class Resource(object):
     def latitude(self):
         if self._data.get('latitude'):
             return self._data.get('latitude')
-        return self._get_geo_coordinates('wgs84')[0]
+        return self._get_geo_coordinates('wgs84')[1]
 
     @property
     def longitude(self):
         if self._data.get('longitude'):
             return self._data.get('longitude')
-        return self._get_geo_coordinates('wgs84')[1]
+        return self._get_geo_coordinates('wgs84')[0]
 
     @property
     def x(self):
