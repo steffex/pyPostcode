@@ -20,7 +20,7 @@ This library supports only the v2 api.
 
 pyPostcode consists of a single file (pyPostcode.py) that you can put in your python search path or in site-packages (or dist-packages depending on the platform)
 You can also simply run it by putting it in the same directory as you main script file or start a python interpreter in the same directory.
-pyPostcode works with Python 2.7.x (you're welcome to test other versions)
+pyPostcode works with Python 2.7.x and 3.5.x (you're welcome to test other versions)
 
 ### API-key
 
