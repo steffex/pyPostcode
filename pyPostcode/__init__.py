@@ -7,13 +7,16 @@ pyPostcode by Stefan Jansen
 pyPostcode is an api wrapper for http://postcodeapi.nu
 '''
 
+try:
+    from urllib.request import urlopen, Request  # for Python 3
+except ImportError:
+    from urllib2 import urlopen, Request  # for Python 2
 
-import urllib2
 import json
 import logging
 
 
-__version__ = '0.4'
+__version__ = '0.5'
 
 
 class pyPostcodeException(Exception):
@@ -61,7 +64,7 @@ class Api(object):
             "X-Api-Key": self.api_key,
         }
 
-        result = urllib2.urlopen(urllib2.Request(
+        result = urlopen(Request(
             self.url + path, headers=headers,
         ))
 
@@ -70,6 +73,8 @@ class Api(object):
 
         resultdata = result.read()
 
+        if isinstance(resultdata, bytes):
+            resultdata = resultdata.decode("utf-8")  # for Python 3
         jsondata = json.loads(resultdata)
 
         if self.api_version >= (2, 0, 0):
