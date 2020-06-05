@@ -14,6 +14,7 @@ except ImportError:
 
 import json
 import logging
+from warnings import warn
 
 
 __version__ = '0.5'
@@ -220,6 +221,12 @@ class ResourceV3(Resource):
     @property
     def city(self):
         return self._data.get('city')
+
+    @property
+    def town(self):
+        warn('Use the attribute "city" instead',
+             DeprecationWarning, stacklevel=2)
+        return self.city
 
     @property
     def municipality(self):
