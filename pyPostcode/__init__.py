@@ -137,6 +137,7 @@ class Resource:
     longitude = property(not_implemented)
     x = property(not_implemented)
     y = property(not_implemented)
+    coordinates = property(not_implemented)
 
 
 class ResourceV2(Resource):
