@@ -125,7 +125,7 @@ class Resource:
         self._data = data
 
     def not_implemented(self):
-        return NotImplemented
+        raise NotImplementedError
 
     street = property(not_implemented)
     house_number = property(not_implemented)
