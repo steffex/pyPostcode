@@ -94,9 +94,9 @@ class Api(object):
                 path += '&number={1}'
             resource = ResourceV2
         else:
+            if house_number is None:
+                raise ValueError('"house_number" cannot be None')
             path = '/v3/lookup/{postcode}/{house_number}'
-            if house_number is not None:
-                path += '/{house_number}'
             resource = ResourceV3
         path = path.format(
             postcode=str(postcode), house_number=str(house_number))
