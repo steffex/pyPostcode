@@ -14,6 +14,7 @@ except ImportError:
 
 import json
 import logging
+from warnings import warn
 
 
 __version__ = '0.5'
@@ -28,14 +29,14 @@ class pyPostcodeException(Exception):
 
 class Api(object):
 
-    def __init__(self, api_key, api_version=(2, 0, 0)):
+    def __init__(self, api_key, api_version=(3, 0, 0)):
         if api_key is None or api_key is '':
             raise pyPostcodeException(
                 0, "Please request an api key on http://postcodeapi.nu")
 
         self.api_key = api_key
         self.api_version = api_version
-        if api_version >= (2, 0, 0):
+        if (2, 0, 0) <= api_version < (3, 0, 0):
             self.url = 'https://postcode-api.apiwise.nl'
         else:
             self.url = 'http://api.postcodeapi.nu'
@@ -58,9 +59,7 @@ class Api(object):
         headers = {
             "Accept": "application/json",
             "Accept-Language": "en",
-            # this is the v1 api
-            "Api-Key": self.api_key,
-            # this is the v2 api
+            # this is the v2 and v3 api key
             "X-Api-Key": self.api_key,
         }
 
@@ -77,28 +76,30 @@ class Api(object):
             resultdata = resultdata.decode("utf-8")  # for Python 3
         jsondata = json.loads(resultdata)
 
-        if self.api_version >= (2, 0, 0):
+        if (2, 0, 0) <= self.api_version < (3, 0, 0):
             data = jsondata.get('_embedded', {}).get('addresses', [])
             if data:
                 data = data[0]
             else:
                 data = None
         else:
-            data = jsondata['resource']
+            data = jsondata
 
         return data
 
     def getaddress(self, postcode, house_number=None):
-        if house_number is None:
-            house_number = ''
-
-        if self.api_version >= (2, 0, 0):
-            path = '/v2/addresses/?postcode={0}&number={1}'
+        if (2, 0, 0) <= self.api_version < (3, 0, 0):
+            path = '/v2/addresses/?postcode={0}'
+            if house_number is not None:
+                path += '&number={1}'
+            resource = ResourceV2
         else:
-            path = '/{0}/{1}'
+            if house_number is None:
+                raise ValueError('"house_number" cannot be None')
+            path = '/v3/lookup/{postcode}/{house_number}'
+            resource = ResourceV3
         path = path.format(
-            str(postcode),
-            str(house_number))
+            postcode=str(postcode), house_number=str(house_number))
 
         try:
             data = self.request(path)
@@ -113,15 +114,33 @@ class Api(object):
             data = None
 
         if data is not None:
-            return Resource(data)
+            return resource(data)
         else:
             return False
 
 
-class Resource(object):
+class Resource:
 
     def __init__(self, data):
         self._data = data
+
+    def not_implemented(self):
+        raise NotImplementedError
+
+    street = property(not_implemented)
+    house_number = property(not_implemented)
+    postcode = property(not_implemented)
+    town = property(not_implemented)
+    municipality = property(not_implemented)
+    province = property(not_implemented)
+    latitude = property(not_implemented)
+    longitude = property(not_implemented)
+    x = property(not_implemented)
+    y = property(not_implemented)
+    coordinates = property(not_implemented)
+
+
+class ResourceV2(Resource):
 
     @property
     def street(self):
@@ -184,3 +203,58 @@ class Resource(object):
         if self._data.get('y'):
             return self._data.get('y')
         return self._get_geo_coordinates('rd')[1]
+
+
+class ResourceV3(Resource):
+
+    @property
+    def street(self):
+        return self._data['street']
+
+    @property
+    def house_number(self):
+        return self._data.get('number')
+
+    @property
+    def postcode(self):
+        return self._data.get('postcode')
+
+    @property
+    def city(self):
+        return self._data.get('city')
+
+    @property
+    def town(self):
+        warn('Use the attribute "city" instead',
+             DeprecationWarning, stacklevel=2)
+        return self.city
+
+    @property
+    def municipality(self):
+        return self._data.get('municipality')
+
+    @property
+    def province(self):
+        return self._data.get('province')
+
+    @property
+    def coordinates(self):
+        return self._data.get('location', {}).get('coordinates')
+
+    @property
+    def latitude(self):
+        coordinates = self.coordinates
+        return coordinates and coordinates[1] or None
+
+    @property
+    def longitude(self):
+        coordinates = self.coordinates
+        return coordinates and coordinates[0] or None
+
+    @property
+    def x(self):
+        return self.longitude
+
+    @property
+    def y(self):
+        return self.latitude
