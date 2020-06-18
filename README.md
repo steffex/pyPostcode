@@ -8,7 +8,8 @@ This API allows you to search for Dutch addresses using zipcodes.
 
 For more information about this API, please visit http://postcodeapi.nu
 
-This library supports only the v2 api.
+This library supports only the [v3](https://www.postcodeapi.nu/docs/v3/) (default) 
+and the [v2](https://www.postcodeapi.nu/docs/v2/) of the Postcode API.
 
 
 ## Installation
