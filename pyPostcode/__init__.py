@@ -30,7 +30,7 @@ class pyPostcodeException(Exception):
 class Api(object):
 
     def __init__(self, api_key, api_version=(3, 0, 0)):
-        if api_key is None or api_key is '':
+        if not api_key:
             raise pyPostcodeException(
                 0, "Please request an api key on http://postcodeapi.nu")
 
@@ -67,7 +67,7 @@ class Api(object):
             self.url + path, headers=headers,
         ))
 
-        if result.getcode() is not 200:
+        if result.getcode() != 200:
             self.handleresponseerror(result.getcode())
 
         resultdata = result.read()
