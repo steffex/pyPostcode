@@ -9,8 +9,9 @@ pyPostcode is an api wrapper for http://postcodeapi.nu
 
 try:
     from urllib.request import urlopen, Request  # for Python 3
+    from urllib.error import HTTPError
 except ImportError:
-    from urllib2 import urlopen, Request  # for Python 2
+    from urllib2 import urlopen, Request, HTTPError  # for Python 2
 
 import json
 import logging
@@ -63,9 +64,12 @@ class Api(object):
             "X-Api-Key": self.api_key,
         }
 
-        result = urlopen(Request(
-            self.url + path, headers=headers,
-        ))
+        try:
+            result = urlopen(Request(
+                self.url + path, headers=headers,
+            ))
+        except HTTPError as err:
+            self.handleresponseerror(err.code)
 
         if result.getcode() != 200:
             self.handleresponseerror(result.getcode())
