@@ -39,7 +39,7 @@ class Api(object):
         if (2, 0, 0) <= api_version < (3, 0, 0):
             self.url = 'https://postcode-api.apiwise.nl'
         else:
-            self.url = 'http://api.postcodeapi.nu'
+            self.url = 'https://api.postcodeapi.nu'
 
     def handleresponseerror(self, status):
         if status == 401:
