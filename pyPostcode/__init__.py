@@ -42,7 +42,7 @@ class Api(object):
             self.url = 'https://api.postcodeapi.nu'
 
     def handleresponseerror(self, status):
-        if status == 401:
+        if status in [401, 403]:
             msg = "Access denied! Api-key missing or invalid"
         elif status == 404:
             msg = "No result found"
@@ -89,9 +89,9 @@ class Api(object):
 
     def getaddress(self, postcode, house_number=None):
         if (2, 0, 0) <= self.api_version < (3, 0, 0):
-            path = '/v2/addresses/?postcode={0}'
+            path = '/v2/addresses/?postcode={postcode}'
             if house_number is not None:
-                path += '&number={1}'
+                path += '&number={house_number}'
             resource = ResourceV2
         else:
             if house_number is None:
