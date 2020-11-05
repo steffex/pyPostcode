@@ -18,7 +18,7 @@ import logging
 from warnings import warn
 
 
-__version__ = '0.6'
+__version__ = '0.7'
 
 
 class pyPostcodeException(Exception):
