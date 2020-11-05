@@ -9,8 +9,9 @@ pyPostcode is an api wrapper for http://postcodeapi.nu
 
 try:
     from urllib.request import urlopen, Request  # for Python 3
+    from urllib.error import HTTPError
 except ImportError:
-    from urllib2 import urlopen, Request  # for Python 2
+    from urllib2 import urlopen, Request, HTTPError  # for Python 2
 
 import json
 import logging
@@ -30,7 +31,7 @@ class pyPostcodeException(Exception):
 class Api(object):
 
     def __init__(self, api_key, api_version=(3, 0, 0)):
-        if api_key is None or api_key is '':
+        if not api_key:
             raise pyPostcodeException(
                 0, "Please request an api key on http://postcodeapi.nu")
 
@@ -39,10 +40,10 @@ class Api(object):
         if (2, 0, 0) <= api_version < (3, 0, 0):
             self.url = 'https://postcode-api.apiwise.nl'
         else:
-            self.url = 'http://api.postcodeapi.nu'
+            self.url = 'https://api.postcodeapi.nu'
 
     def handleresponseerror(self, status):
-        if status == 401:
+        if status in [401, 403]:
             msg = "Access denied! Api-key missing or invalid"
         elif status == 404:
             msg = "No result found"
@@ -63,11 +64,14 @@ class Api(object):
             "X-Api-Key": self.api_key,
         }
 
-        result = urlopen(Request(
-            self.url + path, headers=headers,
-        ))
+        try:
+            result = urlopen(Request(
+                self.url + path, headers=headers,
+            ))
+        except HTTPError as err:
+            self.handleresponseerror(err.code)
 
-        if result.getcode() is not 200:
+        if result.getcode() != 200:
             self.handleresponseerror(result.getcode())
 
         resultdata = result.read()
@@ -89,9 +93,9 @@ class Api(object):
 
     def getaddress(self, postcode, house_number=None):
         if (2, 0, 0) <= self.api_version < (3, 0, 0):
-            path = '/v2/addresses/?postcode={0}'
+            path = '/v2/addresses/?postcode={postcode}'
             if house_number is not None:
-                path += '&number={1}'
+                path += '&number={house_number}'
             resource = ResourceV2
         else:
             if house_number is None:
